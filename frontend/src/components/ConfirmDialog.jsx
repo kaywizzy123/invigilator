@@ -13,6 +13,7 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
   danger = false, // true for actions that can't be undone: makes the button red
+  hideCancel = false, // true for dialogs that only need one button, like "Done"
 }) {
   const dialogRef = useRef(null);
   const titleId = useId();
@@ -46,14 +47,16 @@ export default function ConfirmDialog({
         </h2>
         <div className="mt-2 text-sm text-gray-600">{children}</div>
         <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            autoFocus={danger} // for risky actions, Enter cancels instead of confirming
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-100"
-          >
-            {cancelLabel}
-          </button>
+          {!hideCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              autoFocus={danger} // for risky actions, Enter cancels instead of confirming
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-100"
+            >
+              {cancelLabel}
+            </button>
+          )}
           <button
             type="button"
             onClick={onConfirm}

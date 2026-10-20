@@ -14,6 +14,12 @@ import {
   findUserById,
   updateUserDetails,
 } from "../users.js";
+import {
+  clearLoginFailures,
+  loginWaitMinutes,
+  recordLoginFailure,
+  tooManyAttemptsMessage,
+} from "../loginLimits.js";
 import { requireAuth } from "../middleware.js";
 
 const router = Router();
@@ -26,6 +32,7 @@ function publicUser(user) {
     fullname: user.fullname,
     role: user.role,
     createdAt: user.createdAt,
+    mustChangePassword: Boolean(user.mustChangePassword),
   };
 }
 
@@ -72,11 +79,20 @@ router.post("/login", async (req, res) => {
   const email = String(req.body.email ?? "").trim().toLowerCase();
   const password = String(req.body.password ?? "");
 
+  // Checked before the password, so a locked account stays locked even if the next guess is right.
+  const waitMinutes = loginWaitMinutes(email, req.ip);
+  if (waitMinutes) {
+    res.set("Retry-After", String(waitMinutes * 60));
+    return res.status(429).json({ error: tooManyAttemptsMessage(waitMinutes) });
+  }
+
   const user = await checkLogin(email, password);
   if (!user) {
+    recordLoginFailure(email, req.ip);
     return res.status(401).json({ error: "Incorrect email or password." });
   }
 
+  clearLoginFailures(email);
   logIn(res, user);
   res.json({ user: publicUser(user) });
 });
@@ -111,9 +127,17 @@ router.put("/me/password", requireAuth, async (req, res) => {
   if (newPassword.length < 6) {
     return res.status(400).json({ error: "Your new password must be at least 6 characters." });
   }
+  // Checking the current password is another place to guess it, so it gets the same limit.
+  const waitMinutes = loginWaitMinutes(req.user.email, req.ip);
+  if (waitMinutes) {
+    res.set("Retry-After", String(waitMinutes * 60));
+    return res.status(429).json({ error: tooManyAttemptsMessage(waitMinutes) });
+  }
   if (!(await changeUserPassword(req.user.id, currentPassword, newPassword))) {
+    recordLoginFailure(req.user.email, req.ip);
     return res.status(403).json({ error: "Your current password isn't right." });
   }
+  clearLoginFailures(req.user.email);
 
   // Log out any other devices, in case someone else knew the old password.
   deleteOtherSessions(req.user.id, req.cookies[SESSION_COOKIE]);

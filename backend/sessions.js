@@ -15,6 +15,8 @@ const findSession = db.prepare(`
 
 const removeSession = db.prepare(`DELETE FROM sessions WHERE id = ?`);
 
+const removeAllSessions = db.prepare(`DELETE FROM sessions WHERE user_id = ?`);
+
 const removeOtherSessions = db.prepare(`DELETE FROM sessions WHERE user_id = ? AND id != ?`);
 
 export function createSession(userId) {
@@ -43,4 +45,9 @@ export function deleteSession(id) {
 // Logs the user out everywhere except the session they're using now.
 export function deleteOtherSessions(userId, keepSessionId) {
   removeOtherSessions.run(userId, keepSessionId);
+}
+
+// Logs the user out on every device.
+export function deleteAllSessions(userId) {
+  removeAllSessions.run(userId);
 }

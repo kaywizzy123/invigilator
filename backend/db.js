@@ -76,6 +76,14 @@ db.exec(`
     PRIMARY KEY (class_id, student_id)
   );
 
+  -- Each failed password attempt, used to slow down password guessing (see loginLimits.js).
+  CREATE TABLE IF NOT EXISTS login_failures (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    email     TEXT NOT NULL,
+    ip        TEXT NOT NULL,
+    failed_at TEXT NOT NULL
+  );
+
   -- Which classes each exam is set for. An exam can be set for many classes.
   CREATE TABLE IF NOT EXISTS exam_classes (
     exam_id  TEXT NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
@@ -101,6 +109,8 @@ addColumnIfMissing("exams", "published_at", "TEXT");
 addColumnIfMissing("exams", "closed_at", "TEXT");
 // This student's shuffled order of questions and options (JSON). NULL means the original order.
 addColumnIfMissing("attempts", "layout", "TEXT");
+// 1 after a teacher resets the password: the user must choose a new one when they log in.
+addColumnIfMissing("users", "must_change_password", "INTEGER NOT NULL DEFAULT 0");
 
 // Questions used to have a correct_option column limited to 0-3. SQLite can't change a
 // column's rules, so an old questions table is rebuilt: make a new table in the new shape,

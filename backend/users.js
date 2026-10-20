@@ -1,4 +1,4 @@
-import { randomBytes, randomUUID, scrypt, timingSafeEqual } from "node:crypto";
+import { randomBytes, randomInt, randomUUID, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 import db from "./db.js";
 
@@ -17,13 +17,15 @@ async function verifyPassword(password, stored) {
 }
 
 const findByEmail = db.prepare(`
-  SELECT id, email, fullname, role, password_hash AS passwordHash, created_at AS createdAt
+  SELECT id, email, fullname, role, password_hash AS passwordHash, created_at AS createdAt,
+         must_change_password AS mustChangePassword
   FROM users
   WHERE email = ?
 `);
 
 const findById = db.prepare(`
-  SELECT id, email, fullname, role, created_at AS createdAt
+  SELECT id, email, fullname, role, created_at AS createdAt,
+         must_change_password AS mustChangePassword
   FROM users
   WHERE id = ?
 `);
@@ -36,9 +38,17 @@ const updateDetails = db.prepare(`
   UPDATE users SET fullname = ?, email = ? WHERE id = ?
 `);
 
+// Choosing your own password always clears the "must change" flag.
 const updatePasswordHash = db.prepare(`
-  UPDATE users SET password_hash = ? WHERE id = ?
+  UPDATE users SET password_hash = ?, must_change_password = 0 WHERE id = ?
 `);
+
+const setTemporaryHash = db.prepare(`
+  UPDATE users SET password_hash = ?, must_change_password = 1 WHERE id = ?
+`);
+
+// Easy to read aloud or copy from a screen: no O/0, I/1/L.
+const TEMPORARY_CHARACTERS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
 const insertUser = db.prepare(`
   INSERT INTO users (id, email, fullname, role, password_hash, created_at)
@@ -82,4 +92,17 @@ export async function changeUserPassword(id, currentPassword, newPassword) {
   if (!(await verifyPassword(currentPassword, passwordHash))) return false;
   updatePasswordHash.run(await hashPassword(newPassword), id);
   return true;
+}
+
+// Gives the user a new random temporary password, e.g. "K7QM-2XP4", and marks the account so
+// they must choose their own password after logging in. Returns the temporary password,
+// which is only ever shown once: like every password, only its hash is stored.
+export async function setTemporaryPassword(id) {
+  let temporary = "";
+  for (let i = 0; i < 8; i++) {
+    if (i === 4) temporary += "-";
+    temporary += TEMPORARY_CHARACTERS[randomInt(TEMPORARY_CHARACTERS.length)];
+  }
+  setTemporaryHash.run(await hashPassword(temporary), id);
+  return temporary;
 }

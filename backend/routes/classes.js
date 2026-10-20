@@ -9,7 +9,10 @@ import {
   listClassesForStudent,
   removeStudentFromClass,
 } from "../classes.js";
+import { clearLoginFailures } from "../loginLimits.js";
 import { requireAuth, requireStudent, requireTeacher } from "../middleware.js";
+import { deleteAllSessions } from "../sessions.js";
+import { setTemporaryPassword } from "../users.js";
 
 const router = Router();
 
@@ -58,6 +61,25 @@ router.delete("/classes/:classId/students/:studentId", requireAuth, requireTeach
   await removeStudentFromClass(req.params.classId, req.params.studentId);
   res.status(204).end();
 });
+
+// Give a student in your class a temporary password, for when they've forgotten theirs.
+router.post(
+  "/classes/:classId/students/:studentId/reset-password",
+  requireAuth,
+  requireTeacher,
+  async (req, res) => {
+    const schoolClass = await findOwnClass(req);
+    const student = schoolClass?.students.find((member) => member.id === req.params.studentId);
+    if (!student) {
+      return res.status(404).json({ error: "Student not found in this class." });
+    }
+
+    const temporaryPassword = await setTemporaryPassword(student.id);
+    deleteAllSessions(student.id); // log them out everywhere, in case someone else was using the account
+    clearLoginFailures(student.email); // a locked-out student is exactly who needs this
+    res.json({ temporaryPassword });
+  },
+);
 
 // ----- Students -----
 

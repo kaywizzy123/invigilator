@@ -28,7 +28,7 @@ import { startExamAction } from "./actions/startExamAction";
 import { sitExamAction } from "./actions/sitExamAction";
 import { profileAction } from "./actions/profileAction";
 import { createClassAction } from "./actions/createClassAction";
-import { removeStudentAction } from "./actions/removeStudentAction";
+import { classDetailAction } from "./actions/classDetailAction";
 import { joinClassAction } from "./actions/joinClassAction";
 import { deleteClassAction } from "./actions/deleteClassAction";
 import { rootLoader } from "./loaders/rootLoader";
@@ -63,7 +63,7 @@ export const router = createBrowserRouter([
         path: "classes/:classId",
         element: <ClassDetail />,
         loader: classDetailLoader,
-        action: removeStudentAction,
+        action: classDetailAction,
       },
       { path: "classes/:classId/delete", action: deleteClassAction },
       { path: "profile", element: <Profile />, loader: requireUser, action: profileAction },
