@@ -25,6 +25,7 @@ export async function loadProgress(studentId, teacherId = null) {
     .filter((attempt) => attempt.submittedAt && (!teacherId || attempt.teacherId === teacherId))
     .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt))
     .map((attempt) => ({
+      attemptId: attempt.id,
       examId: attempt.examId,
       title: attempt.title,
       teacherName: attempt.teacherName,

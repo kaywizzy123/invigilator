@@ -1,4 +1,13 @@
-import { CircleUserRound, LayoutDashboard, LogIn, LogOut, ShieldCheck, UserPlus, Users } from "lucide-react";
+import {
+  CircleUserRound,
+  LayoutDashboard,
+  LogIn,
+  LogOut,
+  ShieldCheck,
+  TrendingUp,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { Form, Link, NavLink } from "react-router";
 
 // NavLink knows whether its page is the one open, so the current page can be highlighted.
@@ -30,6 +39,7 @@ export default function Navbar({ user }) {
         <div className="flex items-center gap-2 text-sm font-medium text-gray-600 sm:gap-4">
           <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
           {user.role === "teacher" && <NavItem to="/classes" icon={Users} label="Classes" />}
+          {user.role === "student" && <NavItem to="/progress" icon={TrendingUp} label="Progress" />}
           <NavItem to="/profile" icon={CircleUserRound} label={user.fullname} />
           <Form method="post" action="/logout">
             <button

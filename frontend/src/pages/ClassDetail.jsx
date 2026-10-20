@@ -10,7 +10,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import { useActionData, useLoaderData, useSubmit } from "react-router";
+import { Link, useActionData, useLoaderData, useSubmit } from "react-router";
 import BackLink from "../components/BackLink";
 import EmptyState from "../components/EmptyState";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -99,7 +99,12 @@ export default function ClassDetail() {
           {schoolClass.students.map((student) => (
             <li key={student.id} className="flex items-center justify-between px-6 py-3">
               <div>
-                <p className="font-medium">{student.fullname}</p>
+                <Link
+                  to={`/classes/${schoolClass.id}/students/${student.id}`}
+                  className="font-medium text-blue-600 hover:underline"
+                >
+                  {student.fullname}
+                </Link>
                 <p className="text-sm text-gray-500">
                   {student.email} · joined {new Date(student.joinedAt).toLocaleDateString()}
                 </p>

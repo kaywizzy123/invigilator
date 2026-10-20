@@ -12,6 +12,8 @@ import ClassResults from "./pages/ClassResults";
 import Profile from "./pages/Profile";
 import SetPassword from "./pages/SetPassword";
 import ForgotPassword from "./pages/ForgotPassword";
+import MyProgress from "./pages/MyProgress";
+import StudentProgress from "./pages/StudentProgress";
 import Classes from "./pages/Classes";
 import ClassDetail from "./pages/ClassDetail";
 import StudentAnswers from "./pages/StudentAnswers";
@@ -45,6 +47,8 @@ import { examResultLoader } from "./loaders/examResultLoader";
 import { classResultsLoader } from "./loaders/classResultsLoader";
 import { requireUser } from "./loaders/requireUser";
 import { setPasswordLoader } from "./loaders/setPasswordLoader";
+import { myProgressLoader } from "./loaders/myProgressLoader";
+import { studentProgressLoader } from "./loaders/studentProgressLoader";
 import { classesLoader } from "./loaders/classesLoader";
 import { classDetailLoader } from "./loaders/classDetailLoader";
 import { studentAnswersLoader } from "./loaders/studentAnswersLoader";
@@ -74,6 +78,12 @@ export const router = createBrowserRouter([
       },
       { path: "classes/:classId/delete", action: deleteClassAction },
       { path: "profile", element: <Profile />, loader: requireUser, action: profileAction },
+      { path: "progress", element: <MyProgress />, loader: myProgressLoader },
+      {
+        path: "classes/:classId/students/:studentId",
+        element: <StudentProgress />,
+        loader: studentProgressLoader,
+      },
       { path: "set-password", element: <SetPassword />, loader: setPasswordLoader, action: setPasswordAction },
       { path: "exams/new", element: <NewExam />, loader: requireTeacher, action: createExamAction },
       {
