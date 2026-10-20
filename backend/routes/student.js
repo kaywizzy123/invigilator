@@ -8,6 +8,7 @@ import {
 import { isStudentInExamClass } from "../classes.js";
 import { findExamById } from "../exams.js";
 import { inStudentOrder, randomLayout } from "../layout.js";
+import { loadProgress } from "../progress.js";
 import { deadlineFor, finishAttempt, isCorrect, isTimeUp } from "../marking.js";
 import { requireAuth, requireStudent } from "../middleware.js";
 
@@ -52,6 +53,11 @@ router.get("/student/exams", requireAuth, requireStudent, async (req, res) => {
   }
   const exams = await listPublishedExamsForStudent(req.user.id);
   res.json({ exams });
+});
+
+// Your scores across every exam you've handed in, oldest first.
+router.get("/student/progress", requireAuth, requireStudent, async (req, res) => {
+  res.json({ progress: { fullname: req.user.fullname, exams: await loadProgress(req.user.id) } });
 });
 
 // Start the exam (or carry on with an attempt already started).

@@ -44,6 +44,19 @@ const findAttemptsForExam = db.prepare(`
   ORDER BY users.fullname
 `);
 
+// Every attempt one student has made, with each exam's title, teacher and size.
+const findAttemptsByStudent = db.prepare(`
+  SELECT attempts.id, attempts.exam_id AS examId, exams.title, exams.teacher_id AS teacherId,
+         users.fullname AS teacherName,
+         (SELECT COUNT(*) FROM questions WHERE questions.exam_id = exams.id) AS questionCount,
+         attempts.started_at AS startedAt, attempts.submitted_at AS submittedAt,
+         attempts.answers, attempts.score
+  FROM attempts
+  JOIN exams ON exams.id = attempts.exam_id
+  JOIN users ON users.id = exams.teacher_id
+  WHERE attempts.student_id = ?
+`);
+
 // One attempt with the student's name, for the teacher's view of their answers.
 const findAttemptByIdQuery = db.prepare(`
   SELECT attempts.id, attempts.exam_id AS examId, users.id AS studentId, users.fullname, users.email,
@@ -91,6 +104,10 @@ export async function findAttemptFor(examId, studentId) {
 
 export async function listAttemptsForExam(examId) {
   return findAttemptsForExam.all(examId).map(withParsedAnswers);
+}
+
+export async function listAttemptsForStudent(studentId) {
+  return findAttemptsByStudent.all(studentId).map(withParsedAnswers);
 }
 
 export async function findAttemptById(attemptId) {

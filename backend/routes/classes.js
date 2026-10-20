@@ -11,6 +11,7 @@ import {
 } from "../classes.js";
 import { clearLoginFailures } from "../loginLimits.js";
 import { requireAuth, requireStudent, requireTeacher } from "../middleware.js";
+import { loadProgress } from "../progress.js";
 import { deleteAllSessions } from "../sessions.js";
 import { setTemporaryPassword } from "../users.js";
 
@@ -60,6 +61,23 @@ router.delete("/classes/:classId/students/:studentId", requireAuth, requireTeach
   }
   await removeStudentFromClass(req.params.classId, req.params.studentId);
   res.status(204).end();
+});
+
+// One student's scores on your exams (not other teachers'), for a student in your class.
+router.get("/classes/:classId/students/:studentId/progress", requireAuth, requireTeacher, async (req, res) => {
+  const schoolClass = await findOwnClass(req);
+  const student = schoolClass?.students.find((member) => member.id === req.params.studentId);
+  if (!student) {
+    return res.status(404).json({ error: "Student not found in this class." });
+  }
+  res.json({
+    progress: {
+      fullname: student.fullname,
+      email: student.email,
+      className: schoolClass.name,
+      exams: await loadProgress(student.id, req.user.id),
+    },
+  });
 });
 
 // Give a student in your class a temporary password, for when they've forgotten theirs.
