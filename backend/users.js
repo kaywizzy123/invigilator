@@ -94,6 +94,12 @@ export async function changeUserPassword(id, currentPassword, newPassword) {
   return true;
 }
 
+// Sets a password the user chose, without asking for the current one. Only for someone
+// on a temporary password, who has just logged in with it. Clears the "must change" flag.
+export async function setOwnPassword(id, newPassword) {
+  updatePasswordHash.run(await hashPassword(newPassword), id);
+}
+
 // Gives the user a new random temporary password, e.g. "K7QM-2XP4", and marks the account so
 // they must choose their own password after logging in. Returns the temporary password,
 // which is only ever shown once: like every password, only its hash is stored.

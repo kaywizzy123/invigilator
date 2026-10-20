@@ -10,6 +10,7 @@ import SitExam from "./pages/SitExam";
 import ExamResult from "./pages/ExamResult";
 import ClassResults from "./pages/ClassResults";
 import Profile from "./pages/Profile";
+import SetPassword from "./pages/SetPassword";
 import Classes from "./pages/Classes";
 import ClassDetail from "./pages/ClassDetail";
 import StudentAnswers from "./pages/StudentAnswers";
@@ -27,6 +28,7 @@ import { setExamClassesAction } from "./actions/setExamClassesAction";
 import { startExamAction } from "./actions/startExamAction";
 import { sitExamAction } from "./actions/sitExamAction";
 import { profileAction } from "./actions/profileAction";
+import { setPasswordAction } from "./actions/setPasswordAction";
 import { createClassAction } from "./actions/createClassAction";
 import { classDetailAction } from "./actions/classDetailAction";
 import { joinClassAction } from "./actions/joinClassAction";
@@ -39,6 +41,7 @@ import { sitExamLoader } from "./loaders/sitExamLoader";
 import { examResultLoader } from "./loaders/examResultLoader";
 import { classResultsLoader } from "./loaders/classResultsLoader";
 import { requireUser } from "./loaders/requireUser";
+import { setPasswordLoader } from "./loaders/setPasswordLoader";
 import { classesLoader } from "./loaders/classesLoader";
 import { classDetailLoader } from "./loaders/classDetailLoader";
 import { studentAnswersLoader } from "./loaders/studentAnswersLoader";
@@ -67,6 +70,7 @@ export const router = createBrowserRouter([
       },
       { path: "classes/:classId/delete", action: deleteClassAction },
       { path: "profile", element: <Profile />, loader: requireUser, action: profileAction },
+      { path: "set-password", element: <SetPassword />, loader: setPasswordLoader, action: setPasswordAction },
       { path: "exams/new", element: <NewExam />, loader: requireTeacher, action: createExamAction },
       {
         path: "exams/:examId/edit",

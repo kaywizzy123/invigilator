@@ -21,10 +21,11 @@ export async function loginAction({ request }) {
     return { form: "Couldn't reach the server. Is the backend running?" };
   }
 
+  const data = await res.json();
   if (!res.ok) {
-    const data = await res.json();
     return { form: data.error };
   }
 
-  return redirect("/dashboard");
+  // A temporary password from a teacher must be replaced before anything else.
+  return redirect(data.user.mustChangePassword ? "/set-password" : "/dashboard");
 }

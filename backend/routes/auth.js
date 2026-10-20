@@ -12,6 +12,7 @@ import {
   createUser,
   findUserByEmail,
   findUserById,
+  setOwnPassword,
   updateUserDetails,
 } from "../users.js";
 import {
@@ -20,7 +21,7 @@ import {
   recordLoginFailure,
   tooManyAttemptsMessage,
 } from "../loginLimits.js";
-import { requireAuth } from "../middleware.js";
+import { requireAuth, requireAuthAllowingTemporaryPassword } from "../middleware.js";
 
 const router = Router();
 
@@ -97,8 +98,25 @@ router.post("/login", async (req, res) => {
   res.json({ user: publicUser(user) });
 });
 
-router.get("/me", requireAuth, (req, res) => {
+// Works on a temporary password too, so the page knows to ask for a new one.
+router.get("/me", requireAuthAllowingTemporaryPassword, (req, res) => {
   res.json({ user: publicUser(req.user) });
+});
+
+// Choose your own password after a teacher's reset. No current password needed: you've
+// just logged in with the temporary one.
+router.put("/me/new-password", requireAuthAllowingTemporaryPassword, async (req, res) => {
+  if (!req.user.mustChangePassword) {
+    return res.status(409).json({ error: "Use Change password on your profile instead." });
+  }
+  const newPassword = String(req.body.newPassword ?? "");
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: "Your new password must be at least 6 characters." });
+  }
+
+  await setOwnPassword(req.user.id, newPassword);
+  deleteOtherSessions(req.user.id, req.cookies[SESSION_COOKIE]);
+  res.json({ user: publicUser(await findUserById(req.user.id)) });
 });
 
 // Update your own name and email. Role can't be changed here.
