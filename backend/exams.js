@@ -12,8 +12,8 @@ const updateExamRow = db.prepare(`
 
 // options and answer are stored as JSON text (see QUESTION_COLUMNS in db.js).
 const insertQuestion = db.prepare(`
-  INSERT INTO questions (id, exam_id, position, type, text, options, answer)
-  VALUES (?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO questions (id, exam_id, position, type, text, options, answer, image_id, image_alt)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 const deleteQuestions = db.prepare(`DELETE FROM questions WHERE exam_id = ?`);
@@ -39,7 +39,7 @@ const findExam = db.prepare(`
 `);
 
 const findQuestions = db.prepare(`
-  SELECT id, type, text, options, answer
+  SELECT id, type, text, options, answer, image_id AS imageId, image_alt AS imageAlt
   FROM questions
   WHERE exam_id = ?
   ORDER BY position
@@ -68,6 +68,8 @@ function insertQuestions(examId, questions) {
       question.text,
       JSON.stringify(question.options),
       JSON.stringify(question.answer),
+      question.imageId,
+      question.imageAlt,
     );
   });
 }

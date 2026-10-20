@@ -17,7 +17,9 @@ const QUESTION_COLUMNS = `
   type     TEXT NOT NULL DEFAULT 'single' CHECK (type IN ('single', 'multiple', 'truefalse', 'short')),
   text     TEXT NOT NULL,
   options  TEXT NOT NULL,
-  answer   TEXT NOT NULL
+  answer   TEXT NOT NULL,
+  image_id  TEXT REFERENCES images(id) ON DELETE SET NULL,
+  image_alt TEXT
 `;
 
 db.exec(`
@@ -78,6 +80,15 @@ db.exec(`
     PRIMARY KEY (class_id, student_id)
   );
 
+  -- Uploaded question images. The files themselves live in backend/uploads/.
+  CREATE TABLE IF NOT EXISTS images (
+    id         TEXT PRIMARY KEY,
+    teacher_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    filename   TEXT NOT NULL,
+    mime_type  TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
   -- Each failed password attempt, used to slow down password guessing (see loginLimits.js).
   CREATE TABLE IF NOT EXISTS login_failures (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,6 +127,9 @@ addColumnIfMissing("exams", "closes_at", "TEXT");
 addColumnIfMissing("attempts", "layout", "TEXT");
 // 1 after a teacher resets the password: the user must choose a new one when they log in.
 addColumnIfMissing("users", "must_change_password", "INTEGER NOT NULL DEFAULT 0");
+// An optional image on each question, with a description for screen readers.
+addColumnIfMissing("questions", "image_id", "TEXT REFERENCES images(id) ON DELETE SET NULL");
+addColumnIfMissing("questions", "image_alt", "TEXT");
 
 // Questions used to have a correct_option column limited to 0-3. SQLite can't change a
 // column's rules, so an old questions table is rebuilt: make a new table in the new shape,

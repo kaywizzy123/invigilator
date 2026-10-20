@@ -20,6 +20,7 @@ import {
   Trophy,
 } from "lucide-react";
 import ConfirmDialog from "../components/ConfirmDialog";
+import QuestionImage from "../components/QuestionImage";
 
 const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
@@ -244,6 +245,7 @@ function ExamInProgress({ exam, attempt }) {
         {/* key: a fresh fieldset per question, so the radio buttons never mix between questions */}
         <fieldset key={question.id} disabled={locked}>
           <legend className="mt-5 font-semibold">{question.text}</legend>
+          <QuestionImage imageId={question.imageId} imageAlt={question.imageAlt} />
           <div className="mt-4 space-y-2 text-sm">
             {question.type === "multiple" && <p className="text-gray-500">Tick all that apply.</p>}
             {question.type === "short" ? (

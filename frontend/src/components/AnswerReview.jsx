@@ -1,4 +1,5 @@
 import { Check, CircleCheck, CircleDashed, CircleX } from "lucide-react";
+import QuestionImage from "./QuestionImage";
 
 const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
 
@@ -34,6 +35,7 @@ export default function AnswerReview({ questions, answerLabel }) {
                 {question.correct ? "Correct" : notAnswered ? "Not answered" : "Wrong"}
               </span>
             </div>
+            <QuestionImage imageId={question.imageId} imageAlt={question.imageAlt} className="mb-4" />
             {question.type === "short" ? (
               <ShortAnswerReview question={question} answerLabel={answerLabel} />
             ) : (

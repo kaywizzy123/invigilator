@@ -38,7 +38,14 @@ function examForStudent(exam, layout) {
     id: exam.id,
     title: exam.title,
     timeLimitMinutes: exam.timeLimitMinutes,
-    questions: inStudentOrder(exam, layout).map(({ id, type, text, options }) => ({ id, type, text, options })),
+    questions: inStudentOrder(exam, layout).map(({ id, type, text, options, imageId, imageAlt }) => ({
+      id,
+      type,
+      text,
+      options,
+      imageId,
+      imageAlt,
+    })),
   };
 }
 
@@ -191,6 +198,8 @@ router.get("/student/exams/:examId/result", requireAuth, requireStudent, async (
         id: question.id,
         type: question.type,
         text: question.text,
+        imageId: question.imageId,
+        imageAlt: question.imageAlt,
         options: question.options,
         answer: question.answer,
         yourAnswer: attempt.answers[question.id] ?? null,

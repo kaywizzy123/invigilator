@@ -1,4 +1,18 @@
-import { CircleDot, Plus, SquareCheck, ToggleLeft, Trash2, Type, X } from "lucide-react";
+import { useRef, useState } from "react";
+import {
+  CircleAlert,
+  CircleDot,
+  ImagePlus,
+  LoaderCircle,
+  Plus,
+  RefreshCw,
+  SquareCheck,
+  ToggleLeft,
+  Trash2,
+  Type,
+  X,
+} from "lucide-react";
+import QuestionImage from "./QuestionImage";
 import Select from "./Select";
 
 const OPTION_LETTERS = ["A", "B", "C", "D", "E", "F"];
@@ -77,12 +91,134 @@ export default function QuestionEditor({ question, number, onChange, onRemove, c
         className="rounded-md border border-gray-300 px-3 py-2 text-sm"
       />
 
+      <ImageEditor question={question} onChange={onChange} />
+
       {(question.type === "single" || question.type === "multiple") && (
         <OptionsEditor question={question} onChange={onChange} />
       )}
       {question.type === "truefalse" && <TrueFalseEditor question={question} onChange={onChange} />}
       {question.type === "short" && <AcceptedAnswersEditor question={question} onChange={onChange} />}
     </fieldset>
+  );
+}
+
+// The same limits the server checks; checking here too saves a wasted upload.
+const IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"];
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+
+// An optional image for the question: upload, preview, describe, replace or remove.
+function ImageEditor({ question, onChange }) {
+  const fileInput = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function upload(event) {
+    const file = event.target.files[0];
+    event.target.value = ""; // so choosing the same file again still triggers a change
+    if (!file) return;
+    if (!IMAGE_TYPES.includes(file.type)) {
+      setError("Choose a PNG, JPEG, GIF or WebP image.");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setError("That image is too big. The limit is 2MB.");
+      return;
+    }
+
+    setError(null);
+    setUploading(true);
+    try {
+      // The file itself is the request body; the server checks what it really is.
+      const res = await fetch("/api/images", {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error);
+      } else {
+        onChange({ imageId: data.imageId, imageAlt: question.imageAlt ?? "" });
+      }
+    } catch {
+      setError("Couldn't upload the image. Check your connection and try again.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {/* The real file picker is hidden; our buttons open it with fileInput.current.click(). */}
+      <input
+        ref={fileInput}
+        type="file"
+        accept={IMAGE_TYPES.join(",")}
+        onChange={upload}
+        className="hidden"
+      />
+
+      {question.imageId ? (
+        <div className="flex flex-col gap-2 rounded-md border border-gray-200 p-3">
+          <QuestionImage imageId={question.imageId} imageAlt={question.imageAlt} className="" />
+          <label className="flex flex-col gap-1 text-sm font-medium">
+            Image description <span className="font-normal text-gray-500">(read aloud to students using screen readers)</span>
+            <input
+              value={question.imageAlt ?? ""}
+              onChange={(event) => onChange({ imageAlt: event.target.value })}
+              maxLength={300}
+              placeholder="e.g. A right-angled triangle with sides of 3 cm and 4 cm"
+              className={inputClass}
+            />
+          </label>
+          <div className="flex gap-4 text-sm">
+            <button
+              type="button"
+              onClick={() => fileInput.current.click()}
+              disabled={uploading}
+              className="inline-flex items-center gap-1 font-medium text-indigo-600 hover:underline disabled:opacity-50"
+            >
+              {uploading ? (
+                <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw aria-hidden="true" className="h-4 w-4" />
+              )}
+              {uploading ? "Uploading..." : "Replace image"}
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange({ imageId: null, imageAlt: null })}
+              className="inline-flex items-center gap-1 font-medium text-red-600 hover:underline"
+            >
+              <Trash2 aria-hidden="true" className="h-4 w-4" />
+              Remove image
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => fileInput.current.click()}
+          disabled={uploading}
+          className="inline-flex items-center gap-1 self-start text-sm font-medium text-indigo-600 hover:underline disabled:opacity-50"
+        >
+          {uploading ? (
+            <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
+          ) : (
+            <ImagePlus aria-hidden="true" className="h-4 w-4" />
+          )}
+          {uploading ? "Uploading..." : "Add image"}
+          <span className="font-normal text-gray-500">(optional, up to 2MB)</span>
+        </button>
+      )}
+
+      {error && (
+        <p className="flex items-center gap-2 text-sm text-red-700">
+          <CircleAlert aria-hidden="true" className="h-4 w-4 shrink-0" />
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 

@@ -34,3 +34,6 @@ backend/.env
 
 # Notes for Claude Code: kept on this computer, not on GitHub
 CLAUDE.md
+
+# Uploaded question images
+backend/uploads/

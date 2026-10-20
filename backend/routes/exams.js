@@ -18,6 +18,7 @@ import {
   setExamClasses,
 } from "../classes.js";
 import { inStudentOrder } from "../layout.js";
+import { findImageById } from "../images.js";
 import { finishAttempt, isCorrect, isTimeUp } from "../marking.js";
 import { requireAuth, requireTeacher } from "../middleware.js";
 
@@ -32,8 +33,8 @@ function asList(value) {
   return Array.isArray(value) ? value : [];
 }
 
-// Tidies one question into the exact shape we store, whatever the browser sent.
-function readQuestion(question) {
+// The parts of a question that depend on its type: options and answer.
+function readQuestionByType(question) {
   const type = String(question?.type ?? "single");
   const text = String(question?.text ?? "").trim();
   if (type === "truefalse") {
@@ -51,6 +52,29 @@ function readQuestion(question) {
     return { type, text, options, answer };
   }
   return { type, text, options, answer: Number(question?.answer) };
+}
+
+// Tidies one question into the exact shape we store, whatever the browser sent.
+// imageId / imageAlt: an optional uploaded image and its description for screen readers.
+function readQuestion(question) {
+  const imageId = question?.imageId ? String(question.imageId) : null;
+  return {
+    ...readQuestionByType(question),
+    imageId,
+    imageAlt: imageId ? String(question?.imageAlt ?? "").trim().slice(0, 300) : null,
+  };
+}
+
+// Every image used must be one this teacher uploaded. Returns an error message, or null.
+async function checkImages(questions, teacherId) {
+  for (const [index, question] of questions.entries()) {
+    if (!question.imageId) continue;
+    const image = await findImageById(question.imageId);
+    if (!image || image.teacherId !== teacherId) {
+      return `The image on question ${index + 1} couldn't be found. Try adding it again.`;
+    }
+  }
+  return null;
 }
 
 // Tidies what the browser sent into the exact shape we store.
@@ -126,7 +150,7 @@ router.get("/exams", requireAuth, requireTeacher, async (req, res) => {
 
 router.post("/exams", requireAuth, requireTeacher, async (req, res) => {
   const { title, timeLimitMinutes, questions } = readExam(req.body);
-  const error = validateExam({ title, timeLimitMinutes, questions });
+  const error = validateExam({ title, timeLimitMinutes, questions }) ?? (await checkImages(questions, req.user.id));
   if (error) {
     return res.status(400).json({ error });
   }
@@ -154,7 +178,7 @@ router.put("/exams/:examId", requireAuth, requireTeacher, async (req, res) => {
   }
 
   const { title, timeLimitMinutes, questions } = readExam(req.body);
-  const error = validateExam({ title, timeLimitMinutes, questions });
+  const error = validateExam({ title, timeLimitMinutes, questions }) ?? (await checkImages(questions, req.user.id));
   if (error) {
     return res.status(400).json({ error });
   }
@@ -183,11 +207,13 @@ router.post("/exams/:examId/duplicate", requireAuth, requireTeacher, async (req,
   if (!original) {
     return res.status(404).json({ error: "Exam not found." });
   }
-  const questions = original.questions.map(({ type, text, options, answer }) => ({
+  const questions = original.questions.map(({ type, text, options, answer, imageId, imageAlt }) => ({
     type,
     text,
     options,
     answer,
+    imageId,
+    imageAlt,
   }));
   const copy = await createExam(
     req.user.id,
@@ -380,6 +406,8 @@ router.get("/exams/:examId/attempts/:attemptId", requireAuth, requireTeacher, as
         id: question.id,
         type: question.type,
         text: question.text,
+        imageId: question.imageId,
+        imageAlt: question.imageAlt,
         options: question.options,
         answer: question.answer,
         yourAnswer: attempt.answers[question.id] ?? null,
