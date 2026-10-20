@@ -36,12 +36,17 @@ export default function Login() {
             icon={Mail}
             error={errors?.email}
           />
-          <PasswordField
-            label="Password"
-            name="password"
-            autoComplete="current-password"
-            error={errors?.password}
-          />
+          <div className="flex flex-col gap-1">
+            <PasswordField
+              label="Password"
+              name="password"
+              autoComplete="current-password"
+              error={errors?.password}
+            />
+            <Link to="/forgot-password" className="self-end text-sm text-blue-600 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <button
             type="submit"
             disabled={isSubmitting}

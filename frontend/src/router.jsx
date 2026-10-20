@@ -11,6 +11,7 @@ import ExamResult from "./pages/ExamResult";
 import ClassResults from "./pages/ClassResults";
 import Profile from "./pages/Profile";
 import SetPassword from "./pages/SetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
 import Classes from "./pages/Classes";
 import ClassDetail from "./pages/ClassDetail";
 import StudentAnswers from "./pages/StudentAnswers";
@@ -29,6 +30,7 @@ import { startExamAction } from "./actions/startExamAction";
 import { sitExamAction } from "./actions/sitExamAction";
 import { profileAction } from "./actions/profileAction";
 import { setPasswordAction } from "./actions/setPasswordAction";
+import { forgotPasswordAction } from "./actions/forgotPasswordAction";
 import { createClassAction } from "./actions/createClassAction";
 import { classDetailAction } from "./actions/classDetailAction";
 import { joinClassAction } from "./actions/joinClassAction";
@@ -59,6 +61,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "login", element: <Login />, action: loginAction },
       { path: "signup", element: <SignUp />, action: signUpAction },
+      { path: "forgot-password", element: <ForgotPassword />, action: forgotPasswordAction },
       { path: "logout", action: logoutAction },
       { path: "dashboard", element: <Dashboard />, loader: dashboardLoader, action: joinClassAction },
       { path: "classes", element: <Classes />, loader: classesLoader, action: createClassAction },

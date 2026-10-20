@@ -3,6 +3,7 @@ import {
   SESSION_COOKIE,
   SESSION_MAX_AGE,
   createSession,
+  deleteAllSessions,
   deleteOtherSessions,
   deleteSession,
 } from "../sessions.js";
@@ -160,6 +161,37 @@ router.put("/me/password", requireAuth, async (req, res) => {
   // Log out any other devices, in case someone else knew the old password.
   deleteOtherSessions(req.user.id, req.cookies[SESSION_COOKIE]);
   res.status(204).end();
+});
+
+// A teacher who forgot their password sets a new one using the school's teacher code.
+// Anyone who knows the code could use it, so it's rate-limited like login, every failure gets
+// the same message (so it doesn't reveal who has an account), and it logs the teacher out everywhere.
+router.post("/teacher-reset", async (req, res) => {
+  const email = String(req.body.email ?? "").trim().toLowerCase();
+  const teacherCode = String(req.body.teacherCode ?? "").trim();
+  const newPassword = String(req.body.newPassword ?? "");
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: "Your new password must be at least 6 characters." });
+  }
+  const waitMinutes = loginWaitMinutes(email, req.ip);
+  if (waitMinutes) {
+    res.set("Retry-After", String(waitMinutes * 60));
+    return res.status(429).json({ error: tooManyAttemptsMessage(waitMinutes) });
+  }
+
+  const user = await findUserByEmail(email);
+  const codeIsRight = Boolean(process.env.TEACHER_CODE) && teacherCode === process.env.TEACHER_CODE;
+  if (!user || user.role !== "teacher" || !codeIsRight) {
+    recordLoginFailure(email, req.ip);
+    return res.status(403).json({ error: "That email and teacher code don't match a teacher account." });
+  }
+
+  await setOwnPassword(user.id, newPassword);
+  deleteAllSessions(user.id);
+  clearLoginFailures(email);
+  logIn(res, user);
+  res.json({ user: publicUser(await findUserById(user.id)) });
 });
 
 router.post("/logout", (req, res) => {
