@@ -26,6 +26,7 @@ import { duplicateExamAction } from "./actions/duplicateExamAction";
 import { closeExamAction } from "./actions/closeExamAction";
 import { reopenExamAction } from "./actions/reopenExamAction";
 import { setExamClassesAction } from "./actions/setExamClassesAction";
+import { setScheduleAction } from "./actions/setScheduleAction";
 import { startExamAction } from "./actions/startExamAction";
 import { sitExamAction } from "./actions/sitExamAction";
 import { profileAction } from "./actions/profileAction";
@@ -87,6 +88,7 @@ export const router = createBrowserRouter([
       { path: "exams/:examId/close", action: closeExamAction },
       { path: "exams/:examId/reopen", action: reopenExamAction },
       { path: "exams/:examId/classes", action: setExamClassesAction },
+      { path: "exams/:examId/schedule", action: setScheduleAction },
       { path: "exams/:examId/start", action: startExamAction },
       {
         path: "exams/:examId/sit",

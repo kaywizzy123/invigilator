@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Ban,
+  CalendarClock,
   CalendarDays,
   ChartColumn,
   CircleAlert,
@@ -25,6 +26,7 @@ import {
   Trophy,
   UserRound,
   Users,
+  X,
 } from "lucide-react";
 import { Form, Link, useActionData, useLoaderData, useNavigation, useSubmit } from "react-router";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -78,6 +80,43 @@ export default function Dashboard() {
   );
 }
 
+// "2026-10-20T08:00:00.000Z" -> "Mon 20 Oct, 09:00", in the viewer's own time zone.
+function formatWhen(iso) {
+  return new Date(iso).toLocaleString(undefined, {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+// A date picker (<input type="datetime-local">) shows local time as "2026-10-20T09:00".
+// These convert between that and the UTC strings the server stores.
+function toLocalInput(iso) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  const pad = (number) => String(number).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function fromLocalInput(value) {
+  return value ? new Date(value).toISOString() : null;
+}
+
+// "Opens Mon 20 Oct, 09:00 · Closes Fri 24 Oct, 17:00", or nothing if there's no schedule.
+function ScheduleInfo({ exam }) {
+  if (!exam.opensAt && !exam.closesAt) return null;
+  return (
+    <span className="inline-flex items-center gap-1">
+      <CalendarClock aria-hidden="true" className="h-3.5 w-3.5" />
+      {exam.opensAt && `Opens ${formatWhen(exam.opensAt)}`}
+      {exam.opensAt && exam.closesAt && " · "}
+      {exam.closesAt && `Closes ${formatWhen(exam.closesAt)}`}
+    </span>
+  );
+}
+
 // "10 questions · 20 min", each with a small icon.
 function QuestionsAndTime({ exam }) {
   return (
@@ -116,6 +155,23 @@ function TeacherExams({ exams, classes }) {
   const [examToDelete, setExamToDelete] = useState(null);
   // The exam waiting for "Close" to be confirmed, or null.
   const [examToClose, setExamToClose] = useState(null);
+  // The exam whose schedule is being edited, or null; and what's in the two date pickers.
+  const [examToSchedule, setExamToSchedule] = useState(null);
+  const [opensInput, setOpensInput] = useState("");
+  const [closesInput, setClosesInput] = useState("");
+  // The time the page loaded, to tell scheduled exams from open ones.
+  const [now] = useState(() => Date.now());
+
+  function openSchedule(exam) {
+    setOpensInput(toLocalInput(exam.opensAt));
+    setClosesInput(toLocalInput(exam.closesAt));
+    setExamToSchedule(exam);
+  }
+
+  const scheduleError =
+    opensInput && closesInput && new Date(closesInput) <= new Date(opensInput)
+      ? "The closing time must be after the opening time."
+      : null;
 
   function openClassPicker(exam) {
     setChosenClassIds(exam.classes.map((schoolClass) => schoolClass.id));
@@ -147,9 +203,13 @@ function TeacherExams({ exams, classes }) {
             <div>
               <p className="flex flex-wrap items-center gap-2 font-medium">
                 {exam.title}
-                {exam.closedAt ? (
+                {exam.closedAt || (exam.closesAt && new Date(exam.closesAt) <= now) ? (
                   <Badge icon={Ban} className="bg-gray-200 text-gray-700">
                     Closed
+                  </Badge>
+                ) : exam.publishedAt && exam.opensAt && new Date(exam.opensAt) > now ? (
+                  <Badge icon={CalendarClock} className="bg-blue-100 text-blue-800">
+                    Scheduled
                   </Badge>
                 ) : exam.publishedAt ? (
                   <Badge icon={CircleCheck} className="bg-green-100 text-green-800">
@@ -167,6 +227,7 @@ function TeacherExams({ exams, classes }) {
                   <CalendarDays aria-hidden="true" className="h-3.5 w-3.5" />
                   {new Date(exam.createdAt).toLocaleDateString()}
                 </span>
+                <ScheduleInfo exam={exam} />
               </p>
               <p className="mt-1 text-sm">
                 {exam.classes.length > 0 ? (
@@ -210,6 +271,10 @@ function TeacherExams({ exams, classes }) {
               >
                 <Users aria-hidden="true" className={iconClass} />
                 Classes
+              </button>
+              <button type="button" onClick={() => openSchedule(exam)} className={`${actionClass} text-gray-700`}>
+                <CalendarClock aria-hidden="true" className={iconClass} />
+                Schedule
               </button>
               {!exam.publishedAt && (
                 <button
@@ -332,6 +397,56 @@ function TeacherExams({ exams, classes }) {
       </ConfirmDialog>
 
       <ConfirmDialog
+        open={examToSchedule !== null}
+        title={`Schedule "${examToSchedule?.title}"`}
+        confirmLabel="Save"
+        onCancel={() => setExamToSchedule(null)}
+        onConfirm={() => {
+          if (scheduleError) return;
+          submit(
+            { opensAt: fromLocalInput(opensInput), closesAt: fromLocalInput(closesInput) },
+            { method: "post", action: `/exams/${examToSchedule.id}/schedule`, encType: "application/json" },
+          );
+          setExamToSchedule(null);
+        }}
+      >
+        <p>Students can only start between these times. Leave either empty for no limit.</p>
+        <div className="mt-4 flex flex-col gap-3">
+          {[
+            { label: "Opens", value: opensInput, setValue: setOpensInput },
+            { label: "Closes", value: closesInput, setValue: setClosesInput },
+          ].map((field) => (
+            <label key={field.label} className="flex flex-col gap-1 font-medium text-gray-900">
+              {field.label}
+              <div className="flex items-center gap-2">
+                <input
+                  type="datetime-local"
+                  value={field.value}
+                  onChange={(event) => field.setValue(event.target.value)}
+                  className="flex-1 rounded-md border border-gray-300 px-3 py-2 font-normal focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                />
+                {field.value && (
+                  <button
+                    type="button"
+                    onClick={() => field.setValue("")}
+                    aria-label={`Clear ${field.label.toLowerCase()} time`}
+                    className="rounded p-1 text-gray-400 hover:text-gray-700"
+                  >
+                    <X aria-hidden="true" className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </label>
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-gray-500">
+          Times are in your time zone. At the closing time, everyone still sitting the exam hands in
+          automatically, even if their time limit hasn't run out.
+        </p>
+        {scheduleError && <p className="mt-2 text-red-700">{scheduleError}</p>}
+      </ConfirmDialog>
+
+      <ConfirmDialog
         open={examToDelete !== null}
         title={`Delete "${examToDelete?.title}"?`}
         confirmLabel="Delete exam"
@@ -444,6 +559,18 @@ function StudentExams({ exams }) {
   const submit = useSubmit();
   // The exam waiting for "Start" to be confirmed, or null when the dialog is closed.
   const [examToStart, setExamToStart] = useState(null);
+  // The time the page loaded, to tell which exams have opened or closed.
+  const [now] = useState(() => Date.now());
+
+  // Opens the Start dialog, working out how long the student will really have:
+  // if the exam closes before their time limit runs out, it's cut short.
+  function confirmStart(exam) {
+    const minutesUntilClose = exam.closesAt
+      ? Math.floor((new Date(exam.closesAt).getTime() - Date.now()) / 60000)
+      : Infinity;
+    const minutesAvailable = Math.min(exam.timeLimitMinutes, minutesUntilClose);
+    setExamToStart({ ...exam, minutesAvailable, cutShort: minutesAvailable < exam.timeLimitMinutes });
+  }
 
   if (exams.length === 0) {
     return (
@@ -467,6 +594,7 @@ function StudentExams({ exams }) {
                   <UserRound aria-hidden="true" className="h-3.5 w-3.5" />
                   {exam.teacherName}
                 </span>
+                <ScheduleInfo exam={exam} />
               </p>
             </div>
             <div className="text-sm">
@@ -478,10 +606,15 @@ function StudentExams({ exams }) {
                   <Trophy aria-hidden="true" className={iconClass} />
                   {exam.score}/{exam.questionCount} · View result
                 </Link>
-              ) : exam.closedAt && !exam.startedAt ? (
+              ) : !exam.startedAt && (exam.closedAt || (exam.closesAt && new Date(exam.closesAt) <= now)) ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-gray-200 px-3 py-1 font-medium text-gray-700">
                   <Ban aria-hidden="true" className={iconClass} />
                   Closed
+                </span>
+              ) : !exam.startedAt && exam.opensAt && new Date(exam.opensAt) > now ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 font-medium text-blue-800">
+                  <CalendarClock aria-hidden="true" className={iconClass} />
+                  Opens {formatWhen(exam.opensAt)}
                 </span>
               ) : exam.startedAt ? (
                 <Link
@@ -494,7 +627,7 @@ function StudentExams({ exams }) {
               ) : (
                 <button
                   type="button"
-                  onClick={() => setExamToStart(exam)}
+                  onClick={() => confirmStart(exam)}
                   className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
                 >
                   <Play aria-hidden="true" className={iconClass} />
@@ -517,7 +650,11 @@ function StudentExams({ exams }) {
         }}
       >
         <ul className="list-disc space-y-1 pl-5">
-          <li>You'll have {examToStart?.timeLimitMinutes} minutes.</li>
+          <li>
+            {examToStart?.cutShort
+              ? `You'll have ${examToStart.minutesAvailable} ${examToStart.minutesAvailable === 1 ? "minute" : "minutes"}: the exam closes at ${formatWhen(examToStart.closesAt)}.`
+              : `You'll have ${examToStart?.timeLimitMinutes} minutes.`}
+          </li>
           <li>The timer can't be paused once you start.</li>
           <li>You can only sit this exam once.</li>
         </ul>
