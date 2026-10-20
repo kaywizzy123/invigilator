@@ -23,6 +23,8 @@ const deleteExamRow = db.prepare(`DELETE FROM exams WHERE id = ?`);
 
 const setClosedAt = db.prepare(`UPDATE exams SET closed_at = ? WHERE id = ?`);
 
+const setScheduleRow = db.prepare(`UPDATE exams SET opens_at = ?, closes_at = ? WHERE id = ?`);
+
 const setPublishedAt = db.prepare(`
   UPDATE exams SET published_at = ? WHERE id = ? AND published_at IS NULL
 `);
@@ -30,6 +32,7 @@ const setPublishedAt = db.prepare(`
 const findExam = db.prepare(`
   SELECT id, teacher_id AS teacherId, title, time_limit_minutes AS timeLimitMinutes,
          created_at AS createdAt, published_at AS publishedAt, closed_at AS closedAt,
+         opens_at AS opensAt, closes_at AS closesAt,
          (SELECT COUNT(*) FROM attempts WHERE attempts.exam_id = exams.id) AS attemptCount
   FROM exams
   WHERE id = ?
@@ -45,7 +48,8 @@ const findQuestions = db.prepare(`
 const findExamsByTeacher = db.prepare(`
   SELECT exams.id, exams.title, exams.time_limit_minutes AS timeLimitMinutes,
          exams.created_at AS createdAt, exams.published_at AS publishedAt,
-         exams.closed_at AS closedAt, COUNT(questions.id) AS questionCount,
+         exams.closed_at AS closedAt, exams.opens_at AS opensAt, exams.closes_at AS closesAt,
+         COUNT(questions.id) AS questionCount,
          (SELECT COUNT(*) FROM attempts WHERE attempts.exam_id = exams.id) AS attemptCount
   FROM exams
   LEFT JOIN questions ON questions.exam_id = exams.id
@@ -77,6 +81,8 @@ export async function createExam(teacherId, title, timeLimitMinutes, questions) 
     createdAt: new Date().toISOString(),
     publishedAt: null,
     closedAt: null,
+    opensAt: null,
+    closesAt: null,
     questionCount: questions.length,
     attemptCount: 0,
   };
@@ -112,6 +118,11 @@ export async function closeExam(examId) {
 
 export async function reopenExam(examId) {
   setClosedAt.run(null, examId);
+}
+
+// opensAt / closesAt: ISO date strings, or null for "no limit".
+export async function setSchedule(examId, opensAt, closesAt) {
+  setScheduleRow.run(opensAt, closesAt, examId);
 }
 
 // Returns the exam with its questions in order, or null if there's no such exam.

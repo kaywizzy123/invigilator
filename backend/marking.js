@@ -3,9 +3,12 @@ import { submitAttempt } from "./attempts.js";
 // Extra seconds after the deadline we still accept answers, for slow connections.
 const GRACE_SECONDS = 15;
 
-// The time an attempt ends: when it started plus the exam's time limit.
+// The time an attempt ends: when it started plus the exam's time limit, or the exam's
+// closing time if that comes first (a scheduled exam closes for everyone at once).
 export function deadlineFor(attempt, exam) {
-  return new Date(new Date(attempt.startedAt).getTime() + exam.timeLimitMinutes * 60 * 1000);
+  const timeLimitEnds = new Date(attempt.startedAt).getTime() + exam.timeLimitMinutes * 60 * 1000;
+  const closes = exam.closesAt ? new Date(exam.closesAt).getTime() : Infinity;
+  return new Date(Math.min(timeLimitEnds, closes));
 }
 
 export function isTimeUp(attempt, exam) {

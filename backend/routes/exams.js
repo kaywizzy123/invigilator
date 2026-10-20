@@ -7,6 +7,7 @@ import {
   listExamsByTeacher,
   publishExam,
   reopenExam,
+  setSchedule,
   updateExam,
 } from "../exams.js";
 import { findAttemptById, listAttemptsForExam } from "../attempts.js";
@@ -216,6 +217,35 @@ router.put("/exams/:examId/classes", requireAuth, requireTeacher, async (req, re
 
   await setExamClasses(exam.id, classIds);
   res.json({ classes: await findClassesForExam(exam.id) });
+});
+
+// Reads an optional date-time sent by the browser: an ISO string, or empty/null for none.
+// Returns { value } with a tidy ISO string or null, or { error } if it isn't a real date.
+function readOptionalTime(value) {
+  if (value === null || value === undefined || value === "") return { value: null };
+  const time = new Date(String(value));
+  return Number.isNaN(time.getTime()) ? { error: true } : { value: time.toISOString() };
+}
+
+// Set when students can start the exam: { opensAt, closesAt }, either may be empty.
+// Allowed on locked exams too, so a teacher can extend a deadline.
+router.put("/exams/:examId/schedule", requireAuth, requireTeacher, async (req, res) => {
+  const exam = await findOwnExam(req);
+  if (!exam) {
+    return res.status(404).json({ error: "Exam not found." });
+  }
+  const opens = readOptionalTime(req.body.opensAt);
+  const closes = readOptionalTime(req.body.closesAt);
+  if (opens.error || closes.error) {
+    return res.status(400).json({ error: "Those don't look like real dates and times." });
+  }
+  if (opens.value && closes.value && closes.value <= opens.value) {
+    return res.status(400).json({ error: "The closing time must be after the opening time." });
+  }
+
+  await setSchedule(exam.id, opens.value, closes.value);
+  const updated = await findExamById(exam.id);
+  res.json({ opensAt: updated.opensAt, closesAt: updated.closesAt });
 });
 
 router.post("/exams/:examId/publish", requireAuth, requireTeacher, async (req, res) => {

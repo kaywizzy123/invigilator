@@ -60,14 +60,18 @@ router.post("/student/exams/:examId/start", requireAuth, requireStudent, async (
   if (!exam) {
     return res.status(404).json({ error: "Exam not found." });
   }
-  // Someone who already started can always carry on. Starting fresh needs the exam
-  // to be set for one of your classes, and not closed.
+  // Someone who already started can always carry on (until the deadline). Starting fresh
+  // needs the exam to be set for one of your classes, open, and within its schedule.
   if (!(await findAttemptFor(exam.id, req.user.id))) {
     if (!(await isStudentInExamClass(exam.id, req.user.id))) {
       return res.status(404).json({ error: "Exam not found." });
     }
-    if (exam.closedAt) {
+    const now = Date.now();
+    if (exam.closedAt || (exam.closesAt && now >= new Date(exam.closesAt).getTime())) {
       return res.status(403).json({ error: "This exam is closed." });
+    }
+    if (exam.opensAt && now < new Date(exam.opensAt).getTime()) {
+      return res.status(403).json({ error: "This exam hasn't opened yet.", opensAt: exam.opensAt });
     }
   }
   await startAttempt(exam.id, req.user.id, randomLayout(exam));

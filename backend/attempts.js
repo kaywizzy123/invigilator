@@ -6,7 +6,8 @@ import db from "./db.js";
 // (so removing a student from a class never takes away an exam they're sitting or their result).
 const findPublishedExamsForStudent = db.prepare(`
   SELECT exams.id, exams.title, exams.time_limit_minutes AS timeLimitMinutes,
-         exams.closed_at AS closedAt, users.fullname AS teacherName,
+         exams.closed_at AS closedAt, exams.opens_at AS opensAt, exams.closes_at AS closesAt,
+         users.fullname AS teacherName,
          (SELECT COUNT(*) FROM questions WHERE questions.exam_id = exams.id) AS questionCount,
          attempts.started_at AS startedAt, attempts.submitted_at AS submittedAt,
          attempts.score

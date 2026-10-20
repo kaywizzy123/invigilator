@@ -43,7 +43,9 @@ db.exec(`
     time_limit_minutes INTEGER NOT NULL CHECK (time_limit_minutes > 0),
     created_at         TEXT NOT NULL,
     published_at       TEXT,
-    closed_at          TEXT
+    closed_at          TEXT,
+    opens_at           TEXT,
+    closes_at          TEXT
   );
 
   CREATE TABLE IF NOT EXISTS questions (${QUESTION_COLUMNS});
@@ -107,6 +109,9 @@ addColumnIfMissing("users", "role", "TEXT NOT NULL DEFAULT 'student' CHECK (role
 addColumnIfMissing("exams", "published_at", "TEXT");
 // NULL means open; a date means closed (no new students can start).
 addColumnIfMissing("exams", "closed_at", "TEXT");
+// An optional schedule: students can't start before opens_at, and every attempt ends by closes_at.
+addColumnIfMissing("exams", "opens_at", "TEXT");
+addColumnIfMissing("exams", "closes_at", "TEXT");
 // This student's shuffled order of questions and options (JSON). NULL means the original order.
 addColumnIfMissing("attempts", "layout", "TEXT");
 // 1 after a teacher resets the password: the user must choose a new one when they log in.
