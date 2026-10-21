@@ -33,7 +33,9 @@ export function client(base) {
     });
     const setCookie = res.headers.get("set-cookie");
     if (setCookie) cookie = setCookie.split(";")[0];
-    const text = await res.text();
+    // Decode the bytes ourselves: res.text() would quietly drop a byte order mark (\uFEFF),
+    // and tests should see exactly what the server sent.
+    const text = new TextDecoder("utf-8", { ignoreBOM: true }).decode(await res.arrayBuffer());
     let data = text;
     try {
       data = JSON.parse(text);
@@ -98,3 +100,11 @@ export function startedMinutesAgo(examId, minutes) {
     examId,
   );
 }
+
+// A real 1×1 pixel PNG image, for upload tests.
+export const tinyPng = Uint8Array.from(
+  Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC",
+    "base64",
+  ),
+);

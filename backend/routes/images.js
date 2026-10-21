@@ -36,7 +36,10 @@ router.get("/images/:imageId", requireAuth, async (req, res) => {
     // Images never change once uploaded, so browsers may keep them for a day.
     "Cache-Control": "private, max-age=86400",
   });
-  res.sendFile(image.path);
+  // dotfiles: "allow" because sendFile otherwise refuses any path with a folder starting
+  // with "." (e.g. a project stored under ~/.apps/). That's safe here: the path is built by
+  // the server from the image's stored id, never from anything a user typed.
+  res.sendFile(image.path, { dotfiles: "allow" });
 });
 
 // A file over the size limit: reply in the same JSON shape as other errors.
