@@ -1,16 +1,21 @@
 import { rm } from "node:fs/promises";
+import { join } from "node:path";
 import { after } from "node:test";
 import app from "../app.js";
 import db from "../db.js";
 
-// Starts the app on a free port for one test file, and stops it (and removes any
-// uploaded test images) when the file's tests are done. Returns the API's base URL.
+// Starts the app on a free port for one test file, and stops it when the file's tests are
+// done, deleting the images this file uploaded. Returns the API's base URL.
+// Test files run at the same time and share the uploads folder, so each one deletes only
+// its own images (listed in its own in-memory database), never the whole folder.
 export async function startServer() {
   const server = app.listen(0); // 0 = any free port
   await new Promise((resolve) => server.once("listening", resolve));
   after(async () => {
     await new Promise((resolve) => server.close(resolve));
-    await rm(process.env.UPLOADS_DIR, { recursive: true, force: true });
+    for (const { filename } of db.prepare("SELECT filename FROM images").all()) {
+      await rm(join(process.env.UPLOADS_DIR, filename), { force: true });
+    }
   });
   return `http://127.0.0.1:${server.address().port}/api`;
 }

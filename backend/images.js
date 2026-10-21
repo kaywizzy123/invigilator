@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import db from "./db.js";
@@ -53,6 +53,7 @@ export function detectImageType(bytes) {
 export async function saveImage(teacherId, bytes, type) {
   const id = randomUUID();
   const filename = `${id}.${type.extension}`;
+  await mkdir(UPLOADS_DIR, { recursive: true }); // in case the folder was removed since startup
   await writeFile(new URL(filename, UPLOADS_DIR), bytes);
   insertImage.run(id, teacherId, filename, type.mime, new Date().toISOString());
   return id;
