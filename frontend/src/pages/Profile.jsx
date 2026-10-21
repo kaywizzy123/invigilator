@@ -58,7 +58,7 @@ export default function Profile() {
         Profile
       </h1>
 
-      <section className="mt-6 flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-6">
+      <section className="mt-6 flex items-center gap-4 rounded-xl border border-gray-200 bg-surface p-6">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xl font-semibold text-white">
           {user.fullname.charAt(0).toUpperCase()}
         </div>
@@ -81,7 +81,7 @@ export default function Profile() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
+      <section className="mt-6 rounded-xl border border-gray-200 bg-surface p-6">
         <h2 className="flex items-center gap-2 font-semibold">
           <User aria-hidden="true" className="h-5 w-5 text-gray-500" />
           Your details
@@ -109,7 +109,7 @@ export default function Profile() {
           <button
             type="submit"
             disabled={sending === "details"}
-            className="inline-flex items-center gap-2 self-start rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 self-start rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 hover:bg-gray-700 disabled:opacity-50"
           >
             {sending === "details" ? (
               <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -121,7 +121,7 @@ export default function Profile() {
         </Form>
       </section>
 
-      <section className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
+      <section className="mt-6 rounded-xl border border-gray-200 bg-surface p-6">
         <h2 className="flex items-center gap-2 font-semibold">
           <Lock aria-hidden="true" className="h-5 w-5 text-gray-500" />
           Change password
@@ -155,7 +155,7 @@ export default function Profile() {
           <button
             type="submit"
             disabled={sending === "password"}
-            className="inline-flex items-center gap-2 self-start rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 self-start rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 hover:bg-gray-700 disabled:opacity-50"
           >
             {sending === "password" ? (
               <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />

@@ -51,7 +51,7 @@ export default function SitExam() {
 
 function HandedIn({ exam }) {
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center rounded-xl border border-gray-200 bg-white p-10 text-center">
+    <div className="mx-auto flex max-w-md flex-col items-center rounded-xl border border-gray-200 bg-surface p-10 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600">
         <CircleCheckBig aria-hidden="true" className="h-7 w-7" />
       </div>
@@ -61,7 +61,7 @@ function HandedIn({ exam }) {
       </p>
       <Link
         to={`/exams/${exam.id}/result`}
-        className="mt-6 inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+        className="mt-6 inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 hover:bg-gray-700"
       >
         <Trophy aria-hidden="true" className="h-4 w-4" />
         See your result
@@ -205,7 +205,7 @@ function ExamInProgress({ exam, attempt }) {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
+      <div className="rounded-2xl border border-gray-200 bg-surface p-6 shadow-lg">
         <div className="flex items-center justify-between text-sm">
           <span className="font-medium text-gray-500">
             {exam.title} · Question {current + 1} of {total}
@@ -243,8 +243,8 @@ function ExamInProgress({ exam, attempt }) {
         )}
 
         {/* key: a fresh fieldset per question, so the radio buttons never mix between questions */}
-        <fieldset key={question.id} disabled={locked}>
-          <legend className="mt-5 font-semibold">{question.text}</legend>
+        <fieldset key={question.id} disabled={locked} className="mt-5">
+          <legend className="font-semibold">{question.text}</legend>
           <QuestionImage imageId={question.imageId} imageAlt={question.imageAlt} />
           <div className="mt-4 space-y-2 text-sm">
             {question.type === "multiple" && <p className="text-gray-500">Tick all that apply.</p>}
@@ -343,7 +343,7 @@ function ExamInProgress({ exam, attempt }) {
             <button
               type="button"
               onClick={() => setCurrent(current + 1)}
-              className="inline-flex items-center gap-1 rounded-md bg-gray-900 py-2 pr-3 pl-4 text-sm font-medium text-white hover:bg-gray-700"
+              className="inline-flex items-center gap-1 rounded-md bg-gray-900 py-2 pr-3 pl-4 text-sm font-medium text-gray-50 hover:bg-gray-700"
             >
               Next question
               <ChevronRight aria-hidden="true" className="h-4 w-4" />
@@ -366,12 +366,12 @@ function ExamInProgress({ exam, attempt }) {
               aria-current={index === current ? "step" : undefined}
               className={`h-9 w-9 rounded-md text-sm font-medium ${
                 index === current
-                  ? "ring-2 ring-indigo-600 ring-offset-2"
+                  ? "ring-2 ring-indigo-600 ring-offset-2 ring-offset-surface"
                   : ""
               } ${
                 isAnswered(answers[item.id])
                   ? "bg-indigo-600 text-white"
-                  : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+                  : "border border-gray-300 bg-surface text-gray-700 hover:bg-gray-100"
               }`}
             >
               {index + 1}

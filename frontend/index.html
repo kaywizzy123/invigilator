@@ -5,6 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Invigilator</title>
+    <script>
+      // Apply the saved theme before anything is drawn, so dark mode doesn't flash white first.
+      (function () {
+        var theme = "system";
+        try {
+          theme = localStorage.getItem("theme") || "system";
+        } catch (error) {}
+        var dark =
+          theme === "dark" ||
+          (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

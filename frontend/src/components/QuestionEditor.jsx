@@ -51,7 +51,7 @@ export default function QuestionEditor({ question, number, onChange, onRemove, c
   const TypeIcon = QUESTION_TYPES.find((type) => type.value === question.type).icon;
 
   return (
-    <fieldset className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-6">
+    <fieldset className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-surface p-6">
       <div className="flex items-center justify-between gap-4">
         <legend className="flex items-center gap-2 font-semibold">
           <span className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-50 text-indigo-600">

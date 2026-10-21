@@ -15,7 +15,7 @@ export default function AnswerReview({ questions, answerLabel }) {
         const notAnswered =
           question.yourAnswer === null || (Array.isArray(question.yourAnswer) && question.yourAnswer.length === 0);
         return (
-          <div key={question.id} className="rounded-xl border border-gray-200 bg-white p-6">
+          <div key={question.id} className="rounded-xl border border-gray-200 bg-surface p-6">
             <div className="mb-4 flex items-start justify-between gap-4">
               <p className="font-medium">
                 <span className="text-gray-500">{questionIndex + 1}.</span> {question.text}

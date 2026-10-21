@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { Form, Link, NavLink } from "react-router";
+import ThemeToggle from "./ThemeToggle";
 
 // NavLink knows whether its page is the one open, so the current page can be highlighted.
 function navClass({ isActive }) {
@@ -30,7 +31,7 @@ function NavItem({ to, icon: Icon, label }) {
 
 export default function Navbar({ user }) {
   return (
-    <nav className="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
+    <nav className="flex items-center justify-between gap-4 border-b border-gray-200 bg-surface px-4 py-3 sm:px-6">
       <Link to="/" className="flex items-center gap-2 text-lg font-semibold">
         <ShieldCheck aria-hidden="true" className="h-6 w-6 text-indigo-600" />
         Invigilator
@@ -51,11 +52,13 @@ export default function Navbar({ user }) {
               <span className="hidden sm:inline">Log out</span>
             </button>
           </Form>
+          <ThemeToggle />
         </div>
       ) : (
         <div className="flex items-center gap-2 text-sm font-medium text-gray-600 sm:gap-4">
           <NavItem to="/login" icon={LogIn} label="Log in" />
           <NavItem to="/signup" icon={UserPlus} label="Sign up" />
+          <ThemeToggle />
         </div>
       )}
     </nav>

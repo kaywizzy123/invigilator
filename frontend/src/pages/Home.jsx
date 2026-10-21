@@ -41,7 +41,7 @@ const options = ["Mitochondria", "Nucleus", "Ribosome", "Cell wall"];
 
 function ExamPreview() {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
+    <div className="rounded-2xl border border-gray-200 bg-surface p-6 shadow-lg">
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium text-gray-500">Biology · Question 3 of 20</span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 font-semibold text-amber-800">
@@ -68,7 +68,7 @@ function ExamPreview() {
         ))}
       </ul>
       <div className="mt-5 flex justify-end">
-        <span className="inline-flex items-center gap-1 rounded-md bg-gray-900 py-2 pr-3 pl-4 text-sm font-medium text-white">
+        <span className="inline-flex items-center gap-1 rounded-md bg-gray-900 py-2 pr-3 pl-4 text-sm font-medium text-gray-50">
           Next question
           <ChevronRight aria-hidden="true" className="h-4 w-4" />
         </span>
@@ -115,7 +115,7 @@ export default function Home() {
                 </Link>
                 <Link
                   to="/login"
-                  className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-5 py-2.5 font-medium hover:bg-gray-100"
+                  className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-surface px-5 py-2.5 font-medium hover:bg-gray-100"
                 >
                   <LogIn aria-hidden="true" className="h-5 w-5" />
                   Log in
@@ -132,7 +132,7 @@ export default function Home() {
         <h2 className="text-center text-3xl font-bold">Everything an exam needs</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {features.map((feature) => (
-            <div key={feature.title} className="rounded-xl border border-gray-200 bg-white p-6">
+            <div key={feature.title} className="rounded-xl border border-gray-200 bg-surface p-6">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
                 <feature.icon aria-hidden="true" className="h-5 w-5" />
               </div>
@@ -166,12 +166,12 @@ export default function Home() {
 
       {/* Call to action */}
       {!user && (
-        <section className="rounded-2xl bg-gray-900 px-6 py-12 text-center text-white">
+        <section className="rounded-2xl bg-gray-900 px-6 py-12 text-center text-gray-50">
           <h2 className="text-3xl font-bold">Ready for your next exam?</h2>
           <p className="mt-3 text-gray-300">Create a free account and set up your first exam today.</p>
           <Link
             to="/signup"
-            className="mt-6 inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 font-medium text-gray-900 hover:bg-gray-200"
+            className="mt-6 inline-flex items-center gap-2 rounded-md bg-surface px-5 py-2.5 font-medium text-gray-900 hover:bg-gray-200"
           >
             Get started
             <ArrowRight aria-hidden="true" className="h-5 w-5" />

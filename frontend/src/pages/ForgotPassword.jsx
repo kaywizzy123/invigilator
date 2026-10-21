@@ -10,7 +10,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="mx-auto max-w-sm">
-      <div className="flex flex-col gap-6 rounded-xl border border-gray-200 bg-white p-6 shadow-xl">
+      <div className="flex flex-col gap-6 rounded-xl border border-gray-200 bg-surface p-6 shadow-xl">
         <div className="flex flex-col items-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
             <LifeBuoy aria-hidden="true" className="h-6 w-6" />
@@ -70,7 +70,7 @@ export default function ForgotPassword() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-gray-50 hover:bg-gray-700 disabled:opacity-50"
           >
             {isSubmitting ? (
               <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />

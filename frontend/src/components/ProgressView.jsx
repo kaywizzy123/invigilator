@@ -14,7 +14,7 @@ function shortDate(iso) {
 // A summary number with a label, e.g. "Average 72%".
 function StatTile({ icon: Icon, label, value, detail }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
+    <div className="rounded-xl border border-gray-200 bg-surface p-4">
       <p className="flex items-center gap-1.5 text-sm text-gray-500">
         <Icon aria-hidden="true" className="h-4 w-4" />
         {label}
@@ -42,7 +42,7 @@ function ScoreChart({ points }) {
   }
 
   return (
-    <figure className="rounded-xl border border-gray-200 bg-white p-6">
+    <figure className="rounded-xl border border-gray-200 bg-surface p-6">
       <figcaption className="flex items-center gap-2 font-semibold">
         <ChartLine aria-hidden="true" className="h-5 w-5 text-gray-500" />
         Score over time
@@ -94,7 +94,7 @@ function ScoreChart({ points }) {
               className="absolute h-7 w-7 -translate-x-1/2 translate-y-1/2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
               style={{ left: `${point.x}%`, bottom: `${point.percent}%` }}
             >
-              <span className="absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600 ring-2 ring-white" />
+              <span className="absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600 ring-2 ring-surface" />
             </button>
           ))}
 
@@ -111,7 +111,7 @@ function ScoreChart({ points }) {
           {active !== null && (
             <div
               role="status"
-              className={`pointer-events-none absolute z-10 mb-4 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs whitespace-nowrap shadow-lg ${alignAt(points[active].x)}`}
+              className={`pointer-events-none absolute z-10 mb-4 rounded-md border border-gray-200 bg-surface px-3 py-2 text-xs whitespace-nowrap shadow-lg ${alignAt(points[active].x)}`}
               style={{ left: `${points[active].x}%`, bottom: `${points[active].percent}%` }}
             >
               <p className="text-sm font-semibold text-gray-900">
@@ -187,7 +187,7 @@ export default function ProgressView({ exams, linkTo, showTeacher }) {
           <ClipboardList aria-hidden="true" className="h-5 w-5 text-gray-500" />
           Exams
         </h2>
-        <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
+        <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-surface">
           {[...points].reverse().map((point) => (
             <li key={point.attemptId}>
               <Link

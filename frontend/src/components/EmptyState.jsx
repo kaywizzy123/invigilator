@@ -3,7 +3,7 @@
 export default function EmptyState({ icon: Icon, title, children, className = "mt-8" }) {
   return (
     <section
-      className={`${className} flex flex-col items-center rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center`}
+      className={`${className} flex flex-col items-center rounded-xl border border-dashed border-gray-300 bg-surface p-10 text-center`}
     >
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-400">
         <Icon aria-hidden="true" className="h-7 w-7" />

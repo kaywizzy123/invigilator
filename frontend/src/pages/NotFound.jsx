@@ -17,7 +17,7 @@ export default function NotFound() {
       </p>
       <Link
         to="/"
-        className="mt-6 inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+        className="mt-6 inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 hover:bg-gray-700"
       >
         <House aria-hidden="true" className="h-4 w-4" />
         Go home

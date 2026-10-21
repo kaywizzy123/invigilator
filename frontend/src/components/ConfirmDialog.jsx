@@ -34,7 +34,7 @@ export default function ConfirmDialog({
         event.preventDefault();
         onCancel();
       }}
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl bg-white p-0 text-gray-900 shadow-xl backdrop:bg-gray-900/50"
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl bg-surface p-0 text-gray-900 shadow-xl backdrop:bg-black/60"
     >
       <div className="p-6">
         <h2 id={titleId} className="flex items-start gap-3 text-lg font-semibold">

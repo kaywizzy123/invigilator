@@ -8,7 +8,7 @@ export default function Select({ children, ...selectProps }) {
     <div className="relative">
       <select
         {...selectProps}
-        className="w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pr-9 pl-3 font-normal focus:outline-none focus:ring-2 focus:ring-indigo-600"
+        className="w-full appearance-none rounded-md border border-gray-300 bg-surface py-2 pr-9 pl-3 font-normal focus:outline-none focus:ring-2 focus:ring-indigo-600"
       >
         {children}
       </select>

@@ -42,7 +42,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="mt-1 text-gray-600">
@@ -60,7 +60,7 @@ export default function Dashboard() {
         {isTeacher && (
           <Link
             to="/exams/new"
-            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+            className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-50 hover:bg-gray-700"
           >
             <Plus aria-hidden="true" className={iconClass} />
             New exam
@@ -105,13 +105,15 @@ function fromLocalInput(value) {
 }
 
 // "Opens Mon 20 Oct, 09:00 · Closes Fri 24 Oct, 17:00", or nothing if there's no schedule.
-function ScheduleInfo({ exam }) {
-  if (!exam.opensAt && !exam.closesAt) return null;
+// showOpens={false} leaves out the opening time, for when a badge already shows it.
+function ScheduleInfo({ exam, showOpens = true }) {
+  const opensAt = showOpens ? exam.opensAt : null;
+  if (!opensAt && !exam.closesAt) return null;
   return (
     <span className="inline-flex items-center gap-1">
       <CalendarClock aria-hidden="true" className="h-3.5 w-3.5" />
-      {exam.opensAt && `Opens ${formatWhen(exam.opensAt)}`}
-      {exam.opensAt && exam.closesAt && " · "}
+      {opensAt && `Opens ${formatWhen(opensAt)}`}
+      {opensAt && exam.closesAt && " · "}
       {exam.closesAt && `Closes ${formatWhen(exam.closesAt)}`}
     </span>
   );
@@ -197,7 +199,7 @@ function TeacherExams({ exams, classes }) {
   return (
     <section className="mt-8">
       <h2 className="mb-3 font-semibold">Your exams</h2>
-      <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
+      <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-surface">
         {exams.map((exam) => (
           <li key={exam.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-4">
             <div>
@@ -243,7 +245,8 @@ function TeacherExams({ exams, classes }) {
                 )}
               </p>
             </div>
-            <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1 text-sm">
+            {/* The buttons always get their own row under the exam's details, on every screen size. */}
+            <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 text-sm">
               {exam.attemptCount > 0 ? (
                 <span
                   className="inline-flex items-center gap-1 text-gray-500"
@@ -289,7 +292,7 @@ function TeacherExams({ exams, classes }) {
                   Publish
                 </button>
               )}
-              <Form method="post" action={`/exams/${exam.id}/duplicate`}>
+              <Form method="post" action={`/exams/${exam.id}/duplicate`} className="flex">
                 <button type="submit" className={`${actionClass} text-gray-700`}>
                   <Copy aria-hidden="true" className={iconClass} />
                   Duplicate
@@ -306,7 +309,7 @@ function TeacherExams({ exams, classes }) {
                 </button>
               )}
               {exam.closedAt && (
-                <Form method="post" action={`/exams/${exam.id}/reopen`}>
+                <Form method="post" action={`/exams/${exam.id}/reopen`} className="flex">
                   <button type="submit" className={`${actionClass} text-green-700`}>
                     <RotateCcw aria-hidden="true" className={iconClass} />
                     Reopen
@@ -490,7 +493,7 @@ function StudentClasses({ classes }) {
   }, [result]);
 
   return (
-    <section className="mt-8 rounded-xl border border-gray-200 bg-white p-6">
+    <section className="mt-8 rounded-xl border border-gray-200 bg-surface p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="flex items-center gap-2 font-semibold">
@@ -523,7 +526,7 @@ function StudentClasses({ classes }) {
             placeholder="Class code"
             aria-label="Class code"
             autoComplete="off"
-            className="w-32 rounded-md border border-gray-300 px-3 py-2 font-mono text-sm uppercase placeholder:normal-case"
+            className="w-32 rounded-md border border-gray-300 px-3 py-2 font-mono text-sm uppercase placeholder:font-sans placeholder:normal-case"
           />
           <button
             type="submit"
@@ -583,7 +586,7 @@ function StudentExams({ exams }) {
   return (
     <section className="mt-8">
       <h2 className="mb-3 font-semibold">Your exams</h2>
-      <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
+      <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-surface">
         {exams.map((exam) => (
           <li key={exam.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 py-4">
             <div>
@@ -594,7 +597,7 @@ function StudentExams({ exams }) {
                   <UserRound aria-hidden="true" className="h-3.5 w-3.5" />
                   {exam.teacherName}
                 </span>
-                <ScheduleInfo exam={exam} />
+                <ScheduleInfo exam={exam} showOpens={false} />
               </p>
             </div>
             <div className="text-sm">
@@ -628,7 +631,7 @@ function StudentExams({ exams }) {
                 <button
                   type="button"
                   onClick={() => confirmStart(exam)}
-                  className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-700"
+                  className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 font-medium text-gray-50 hover:bg-gray-700"
                 >
                   <Play aria-hidden="true" className={iconClass} />
                   Start

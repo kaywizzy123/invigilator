@@ -46,7 +46,7 @@ export default function ExamForm({ exam, submitLabel, submittingLabel }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6">
+      <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-surface p-6">
         <label className="flex flex-col gap-1 text-sm font-medium">
           Title
           <input
@@ -100,7 +100,7 @@ export default function ExamForm({ exam, submitLabel, submittingLabel }) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="flex items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="flex items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-gray-50 hover:bg-gray-700 disabled:opacity-50"
       >
         {isSubmitting ? (
           <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />

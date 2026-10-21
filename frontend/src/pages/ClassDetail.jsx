@@ -63,7 +63,7 @@ export default function ClassDetail() {
         </button>
       </div>
 
-      <section className="mt-6 rounded-xl border border-gray-200 bg-white p-8 text-center">
+      <section className="mt-6 rounded-xl border border-gray-200 bg-surface p-8 text-center">
         <p className="inline-flex items-center gap-1 text-sm font-medium text-gray-500">
           <KeyRound aria-hidden="true" className="h-4 w-4" />
           Join code
@@ -95,7 +95,7 @@ export default function ClassDetail() {
           They'll appear here as they join with the code.
         </EmptyState>
       ) : (
-        <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
+        <ul className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-surface">
           {schoolClass.students.map((student) => (
             <li key={student.id} className="flex items-center justify-between px-6 py-3">
               <div>
@@ -188,7 +188,7 @@ export default function ClassDetail() {
           <button
             type="button"
             onClick={copyTemporaryPassword}
-            className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+            className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-surface px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
           >
             {passwordCopied ? (
               <Check aria-hidden="true" className="h-4 w-4 text-green-600" />

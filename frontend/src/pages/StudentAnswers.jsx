@@ -13,7 +13,7 @@ export default function StudentAnswers() {
     <div className="mx-auto max-w-2xl">
       <BackLink to={`/exams/${examId}/results`}>Back to results</BackLink>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-6">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-surface p-6">
         <div>
           <p className="text-sm text-gray-500">{attempt.examTitle}</p>
           <h1 className="text-xl font-bold">{attempt.fullname}</h1>

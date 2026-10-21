@@ -29,7 +29,7 @@ export default function Classes() {
         <button
           type="submit"
           disabled={isCreating}
-          className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 hover:bg-gray-700 disabled:opacity-50"
         >
           {isCreating ? (
             <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -51,7 +51,7 @@ export default function Classes() {
           Create one above, then give your students its join code.
         </EmptyState>
       ) : (
-        <ul className="mt-8 divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
+        <ul className="mt-8 divide-y divide-gray-200 rounded-xl border border-gray-200 bg-surface">
           {classes.map((schoolClass) => (
             <li key={schoolClass.id}>
               <Link

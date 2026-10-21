@@ -11,7 +11,7 @@ export default function ExamResult() {
     <div className="mx-auto max-w-2xl">
       <BackLink to="/dashboard">Back to dashboard</BackLink>
 
-      <div className="mt-4 flex flex-col items-center rounded-xl border border-gray-200 bg-white p-8 text-center">
+      <div className="mt-4 flex flex-col items-center rounded-xl border border-gray-200 bg-surface p-8 text-center">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-600">
           <Trophy aria-hidden="true" className="h-7 w-7" />
         </div>
