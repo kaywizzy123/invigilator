@@ -37,3 +37,6 @@ CLAUDE.md
 
 # Uploaded question images
 backend/uploads/
+
+# Images uploaded while tests run
+backend/test/.uploads/

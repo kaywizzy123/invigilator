@@ -1,9 +1,15 @@
 import { mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
-mkdirSync(new URL("./data/", import.meta.url), { recursive: true });
+// Where the database lives. Tests set DATABASE_PATH=":memory:" for a fresh, throwaway
+// database that exists only while they run, so they never touch the real one.
+const DATABASE_PATH = process.env.DATABASE_PATH ?? new URL("./data/app.db", import.meta.url).pathname;
+if (DATABASE_PATH !== ":memory:") {
+  mkdirSync(dirname(DATABASE_PATH), { recursive: true });
+}
 
-const db = new DatabaseSync(new URL("./data/app.db", import.meta.url).pathname);
+const db = new DatabaseSync(DATABASE_PATH);
 
 // The questions table's columns. Used to create it, and to rebuild it (see below).
 // type:    'single' (multiple choice), 'multiple' (tick all that apply), 'truefalse' or 'short'

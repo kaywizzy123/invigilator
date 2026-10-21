@@ -1,11 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
+import { resolve, sep } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import db from "./db.js";
 
 // Uploaded image files are kept here (gitignored, like the database).
-const UPLOADS_DIR = new URL("./uploads/", import.meta.url);
+// Tests set UPLOADS_DIR to their own folder, so they never touch real uploads.
+const UPLOADS_DIR = process.env.UPLOADS_DIR
+  ? pathToFileURL(resolve(process.env.UPLOADS_DIR) + sep)
+  : new URL("./uploads/", import.meta.url);
 mkdirSync(UPLOADS_DIR, { recursive: true });
 
 // The image types we accept, recognised by the first bytes of the file (its "magic number"),
