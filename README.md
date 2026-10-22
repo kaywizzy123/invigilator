@@ -4,6 +4,42 @@ An online exam app for schools. Teachers set exams for their classes; students s
 
 > **Status:** prototype. It runs locally with a SQLite database and is not yet deployed or hardened for real-world use.
 
+![The Invigilator home page](docs/screenshots/home.png)
+
+## Screenshots
+
+All names and data below are made up for the demo.
+
+### Teachers
+
+**Dashboard:** every exam with its status (draft, scheduled, published), its classes, and actions to edit, schedule, publish, duplicate or close it.
+
+![Teacher dashboard listing five exams with their status and actions](docs/screenshots/teacher-dashboard.png)
+
+**Exam builder:** each question can be multiple choice, multiple answers, true/false or short answer, with an optional image.
+
+![Editing an exam: a multiple choice question with four options and the correct one picked](docs/screenshots/exam-builder.png)
+
+**Results** (in dark mode): class average, highest and lowest scores, every student's score, and how many got each question right.
+
+![Results for an exam in dark mode: summary figures, a student table and per-question bars](docs/screenshots/results-dark.png)
+
+### Students
+
+**Sitting an exam on a phone,** in light and dark mode, and **the review** after handing in:
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/sit-phone-light.png" alt="A geometry question with a triangle diagram, a countdown timer and a question navigator, in light mode" width="260"></td>
+    <td><img src="docs/screenshots/sit-phone-dark.png" alt="The same exam question in dark mode" width="260"></td>
+    <td><img src="docs/screenshots/review-phone-dark.png" alt="The result review: 4 out of 4, with each answer marked correct" width="260"></td>
+  </tr>
+</table>
+
+**Progress:** scores across every exam, with a chart.
+
+![A student's progress page: summary figures and a line chart rising from 50% to 100%](docs/screenshots/progress.png)
+
 ## Features
 
 ### For teachers
